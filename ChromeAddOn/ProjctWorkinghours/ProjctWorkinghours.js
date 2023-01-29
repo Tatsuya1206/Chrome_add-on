@@ -14,7 +14,7 @@ window.onload = function(){
 }
 
 
-function createDropDownList(table){
+function createProjDropDownList(table){
     // 対象テーブルを取得
     var myTable = document.getElementById("hogeTable");
 
@@ -29,10 +29,21 @@ function createDropDownList(table){
 
     // ・ドロップダウンの位置調整。
 
+}
+
+function addTotalList(table){
+    // 対象テーブルを取得
+    var myTable = document.getElementById("hogeTable");
+
+    // ・ドロップダウン用の値の取得
+    var listItemArr = getListItem(table,"プロジェクト名");
+
     // ドロップダウンの選択肢の分だけ、合計行を増やす
     for(var i=0;i < listItemArr.length;i++){
         let totalWorkingHours = 0;
-        totalWorkingHours = getTotalWorkinghours(myTable,"作業時間","プロジェクト名")
+        totalWorkingHours = getTotalWorkinghours(table,"作業時間","プロジェクト名")
+
+        table.rows[table.rows.length - 1]
     }
 
 }
@@ -47,7 +58,6 @@ function getTotalArray(){
     // プロジェクト別合計取得
 
     var listItemArr = getListItem(table,itemName);
-
 
 }
 
