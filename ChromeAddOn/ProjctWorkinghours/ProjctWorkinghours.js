@@ -18,11 +18,11 @@ window.onload = function(){
     //総合計行インデックス取得
     // var grandTotalRowIndex = myTable.rows.length;
 
-//     var listItemArr = getListItem(table,"プロジェクト名");
-//     for(var i=0;i < listItemArr.length - 1;i++){
-//         // プロジェクト別合計行を追加
-//         addTotalRow(myTable,listItemArr[i],i);
-//     }
+    var listItemArr = getListItem(myTable,"プロジェクト名");
+    for(var i = 1;i < listItemArr.length;i++){
+        // プロジェクト別合計行を追加
+        addTotalRow(myTable,listItemArr[i],i);
+    }
 }
 
 function createProjDropDownList(table){
@@ -131,80 +131,87 @@ function createDropDown(itemId,ItemArr){
 // }
 
 
-
-// function addTotalRow(table,targetProjName,idNo){
+// 合計行追加
+function addTotalRow(table,targetProjName,totalRowIndex){
     
-//     var totalWorkingHours = 0;
-//     var tr = document.createElement("tr");
-//     // tr.setAttribute("id","TotalRow" + i );
-//     // 取得した合計時間を合計行に設定
-//     createTotalRow(tr,totalWorkingHours,targetProjName);
-//     table.appendChild(tr);
-// }
+    var totalWorkingHours = 0;
+    var tr = document.createElement("tr");
+    // tr.setAttribute("id","TotalRow" + i );
+    totalWorkingHours = getTotalWorkinghours(table,"作業時間",targetProjName,totalRowIndex);
+    // 取得した合計時間を合計行に設定
+    createTotalRow(tr,totalWorkingHours,targetProjName);
+    table.appendChild(tr);
+}
 
 // 合計行作成
-// function createTotalRow(tr,totalWorkingHours,targetProjName){
+function createTotalRow(tr,totalWorkingHours,targetProjName){
 
-//     var td = document.createElement("td");
-//     tr.appendChild(td);
+    var td = document.createElement("td");
+    tr.appendChild(td);
 
-//     // 作業時間表示列
-//     var td2 = document.createElement("td");
-//     var label = document.createElement("span");
-//     label.innerHTML = totalWorkingHours;
-//     td2.appendChild(label);
-//     tr.appendChild(td2);
+    // 作業時間表示列
+    var td2 = document.createElement("td");
+    var label = document.createElement("span");
+    label.innerHTML = totalWorkingHours;
+    td2.appendChild(label);
+    tr.appendChild(td2);
 
-//     // プロジェクト名表示列
-//     var td3 = document.createElement("td");
-//     var label2 = document.createElement("span");
-//     label2.innerHTML = targetProjName;
-//     td3.appendChild(label2);
-//     tr.appendChild(td3);
-// }
+    // プロジェクト名表示列
+    var td3 = document.createElement("td");
+    var label2 = document.createElement("span");
+    label2.innerHTML = targetProjName;
+    td3.appendChild(label2);
+    tr.appendChild(td3);
+}
 
 
 
-// // 合計時間取得　引数：テーブル、集計対象項目名、対象プロジェクト名
-// function getTotalWorkinghours(table,sumTargetColName,targetProjName){
+// 合計時間取得　引数：テーブル、集計対象項目名、対象プロジェクト名
+function getTotalWorkinghours(table,sumTargetColName,targetProjName,totalRowIndex){
 
-//     var sumTargetColIndex = 0;
-//     var sumTargetKeyIndex = 0;
-//     sumTargetColIndex = getTargetColIndex(table,sumTargetColName);
-//     sumTargetKeyIndex = getTargetColIndex(table,"プロジェクト名");
+    var sumTargetColIndex = 0;
+    var sumTargetKeyIndex = 0;
+    sumTargetColIndex = getTargetColIndex(table,sumTargetColName);
+    sumTargetKeyIndex = getTargetColIndex(table,"プロジェクト名");
 
-//     var hours = 0;
-//     var minuets = 0;
+    var tmpHours = 0;
+    var tmpMinuets = 0;
 
-//     var tmpHours = 0;
-//     var tmpMinuets = 0;
+    var hours = "";
+    var minuets = "";
 
-//     for (var n=1; n < table.rows.length-2; n++) {
+    var tmpFullSecond = 0;
 
-//         // 集計対象の行の場合
-//         if(table.rows[n].cells[sumTargetKeyIndex].innerHTML === targetProjName){
+    for (var n=1; n < table.rows.length - totalRowIndex; n++) {
 
-//             // hh:mmを分解
-//             var tmpHHmm = table.rows[n].cells[sumTargetColIndex].innerHTML.split(':');
+        // 集計対象の行の場合
+        if(table.rows[n].cells[sumTargetKeyIndex].innerHTML === targetProjName){
+
+            // hh:mmを分解
+            var tmpHHmm = table.rows[n].cells[sumTargetColIndex].innerHTML.split(':');
             
-//             // 合計時間算出
-//             tmpHours = tmpHours + Number(tmpHHmm[0]);
-            
-//             // 合計分を算出
-//             tmpMinuets = tmpMinuets + Number(tmpHHmm[1]) ;
+            // 合計秒算出
+            tmpFullSecond = tmpFullSecond + Number(tmpHHmm[0]) * 60 * 60 + Number(tmpHHmm[1]) * 60;
+        }  
+    }
 
-//         }  
-//     }
+    tmpHours = Math.floor(Math.abs(tmpFullSecond) / 3600);
+    tmpMinuets = Math.floor(Math.abs(tmpFullSecond) % 3600 / 60);
 
-//     // 合計時間＝合計時間+合計分数（時間分）
-//     hours = tmpHours + tmpMinuets / 60;
+    hours = timeFormat(String(tmpHours));
+    minuets = timeFormat(String(tmpMinuets));
 
-//     // 集計した、分を設定
-//     minuets = tmpMinuets % 60;
+    return hours + ':' + minuets;
+}
 
-//     return hours + ':' + minuets;
-// }
-
+function timeFormat(arg){
+    if(arg.length < 2){
+        if(0 <= Number(arg)){
+            arg = "0" + arg;
+        }
+    }
+    return arg;
+}
 
 
 // // 隠し項目設定　引数：Name属性に設定したい文字列、そのNameに属する、値（複数可）
