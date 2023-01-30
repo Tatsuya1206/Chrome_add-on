@@ -53,7 +53,8 @@ function getListItem(table,targetListItemName){
         itemName = table.rows[i].cells[targetListItemIndex].innerHTML;
 
         // ドロップダウンリストの取得した値がなければ、リストに追加
-        if(listItemArr.indexOf(itemName) !== -1){
+        // if(listItemArr.indexOf(itemName) !== -1){
+        if(listItemArr.includes(itemName) === false){
             listItemArr.push(itemName);
         }
     }
@@ -80,10 +81,11 @@ function createDropDown(itemId,ItemArr){
     var bodyElement = document.getElementsByTagName('body');
     var selectList = document.createElement('select');
     selectList.setAttribute("id",itemId);
-    var selItem = document.createElement('option');
+    
     for(i = 0;i < ItemArr.length;i++){
 
         //ドロップダウンのText,Valueを設定
+        var selItem = document.createElement('option');
         selItem.text=ItemArr[i];
         selItem.value=i;
         selectList.appendChild(selItem);
