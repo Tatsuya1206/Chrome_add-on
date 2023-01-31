@@ -81,6 +81,7 @@ function createDropDown(itemId,ItemArr){
     var bodyElement = document.getElementsByTagName('body');
     var selectList = document.createElement('select');
     selectList.setAttribute("id",itemId);
+    selectList.addEventListener('change', dropDownChanged);
     
     for(i = 0;i < ItemArr.length;i++){
 
@@ -95,40 +96,41 @@ function createDropDown(itemId,ItemArr){
 
 }
 
-// function dropDownChanged(table,selectProjName){
-//     // ・選択されたプロジェクト行のみ表示、それ以外の行を非表示にする。
-//     displayRowChange(table,selectProjName);
-//     // ・表示行の作業時間を合計行に設定する。
+function dropDownChanged(e) {
+    var selectList = document.getElementById("projList");
+    let index = Number(e.target.value);
+    let text = selectList.options[index].text
+    var table = document.getElementById("hogeTable");
+    displayRowChange(table,text);
+}
 
-//     // ・その他のプロジェクトの合計行を消す。
-// }
 
-// function displayRowChange(table,selectProjName){
-//     // 今は総合計行も表示、非表示が切り替わる。
+function displayRowChange(table,selectProjName){
+    // 今は総合計行も表示、非表示が切り替わる。
 
-//     // プロジェクト名のカラム位置取得
-//     var projNameIndex = getTargetColIndex(table,"プロジェクト名");
+    // プロジェクト名のカラム位置取得
+    var projNameIndex = getTargetColIndex(table,"プロジェクト名");
 
-//     // テーブル要素のrowでループ
-//     for(var i = 1;i < table.rows.length;i++){
+    // テーブル要素のrowでループ
+    for(var i = 1;i < table.rows.length;i++){
 
-//         // 選択されたプロジェクトの場合
-//         if(selectProjName === table.row[i].cells[projNameIndex].innerHTML){
+        // 選択されたプロジェクトの場合
+        if(selectProjName === table.rows[i].cells[projNameIndex].innerHTML){
 
-//             // 行を表示。
-//             table.row[i].style.display = "block";
+            // 行を表示。
+            table.rows[i].style.display = "table-row";
 
-//         }else if(selectProjName === "選択してください。"){
-//             // 行を表示。
-//             table.row[i].style.display = "block";
-//         }else{
+        }else if(selectProjName === "選択してください。"){
+            // 行を表示。
+            table.rows[i].style.display = "table-row";
+        }else{
 
-//             // 上記以外の場合
-//             // 行を非表示。
-//             table.row[i].style.display = "none";
-//         }
-//     }
-// }
+            // 上記以外の場合
+            // 行を非表示。
+            table.rows[i].style.display = "none";
+        }
+    }
+}
 
 
 // 合計行追加
@@ -158,10 +160,14 @@ function createTotalRow(tr,totalWorkingHours,targetProjName){
 
     // プロジェクト名表示列
     var td3 = document.createElement("td");
-    var label2 = document.createElement("span");
-    label2.innerHTML = targetProjName;
-    td3.appendChild(label2);
+    td3.innerHTML = targetProjName
+    // var label2 = document.createElement("label");
+    // label2.innerHTML = targetProjName;
+    // td3.appendChild(label2);
     tr.appendChild(td3);
+
+    var td4 = document.createElement("td");
+    tr.appendChild(td4);
 }
 
 
