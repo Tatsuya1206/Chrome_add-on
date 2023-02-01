@@ -1,25 +1,22 @@
-// 読込時
-    // プロジェクト明細取得
-//     ドロップダウン生成イベント
-//     プロジェクト別の作業時間合計を追加する
-//         ドロップダウン選択時は選択されていないプロジェクトの合計が表示されてないようにする。
+//合計行の始まりと、終わりの行数を取得する。
+//合計行の表示、非表示を実装する。
 
+const PROJ_COL_NAME = "プロジェクト";
+const WORKING_HOURS_COL_NAME = "実働";
+const SEL_LIST_DEFAULT_ITEM = "選択してください。";
+const PROJ_LIST_ID = "projList";
 
-// ドロップダウン選択時
-//     選択されたプロジェクトの行のみ、表示
-//     その他は非表示
-//     表示されている行の作業時間の合計を表示する。
 window.onload = function(){
     // 対象テーブルを取得
-    var myTable = document.getElementById("hogeTable");
+    var myTable = document.getElementsByTagName('table')[0];
     // ドロップダウンリスト作成
     createProjDropDownList(myTable);
 
     //総合計行インデックス取得
     // var grandTotalRowIndex = myTable.rows.length;
 
-    var listItemArr = getListItem(myTable,"プロジェクト名");
-    for(var i = 1;i < listItemArr.length;i++){
+    var listItemArr = getListItem(myTable,PROJ_COL_NAME);
+    for(var i = 2;i < listItemArr.length;i++){
         // プロジェクト別合計行を追加
         addTotalRow(myTable,listItemArr[i],i);
     }
@@ -27,12 +24,10 @@ window.onload = function(){
 
 function createProjDropDownList(table){
     // ・ドロップダウン用の値の取得
-    var listItemArr = getListItem(table,"プロジェクト名");
+    var listItemArr = getListItem(table,PROJ_COL_NAME);
 
     // ・ドロップダウンコントロールの生成
-    createDropDown("projList",listItemArr);
-
-    // ・ドロップダウンの位置調整。
+    createDropDown(PROJ_LIST_ID,listItemArr,table);
 
 }
 
@@ -45,15 +40,14 @@ function getListItem(table,targetListItemName){
     targetListItemIndex = getTargetColIndex(table,targetListItemName);
 
     var itemName = "";
-    listItemArr.push("選択してください。");
+    listItemArr.push(SEL_LIST_DEFAULT_ITEM);
     // ドロップダウンリストの項目を取得
-    for (var i = 1; i < table.rows.length-1; i++) {
+    for (var i = 2; i < table.rows.length-1; i++) {
 
         // テーブルからドロップダウンリストの値を取得
         itemName = table.rows[i].cells[targetListItemIndex].innerHTML;
 
         // ドロップダウンリストの取得した値がなければ、リストに追加
-        // if(listItemArr.indexOf(itemName) !== -1){
         if(listItemArr.includes(itemName) === false){
             listItemArr.push(itemName);
         }
@@ -67,8 +61,8 @@ function getListItem(table,targetListItemName){
 function getTargetColIndex(table,targetColName){
     var targetItemIndex = 0;
     // カラムの位置を特定
-    for(var i=0;i< table.rows[0].cells.length;i++){
-        if(table.rows[0].cells[i].innerHTML === targetColName){
+    for(var i=0;i< table.rows[1].cells.length;i++){
+        if(table.rows[1].cells[i].innerHTML === targetColName){
             targetItemIndex = i;
             break;
         }
@@ -77,8 +71,9 @@ function getTargetColIndex(table,targetColName){
 }
 
 // ドロップダウンリスト作成
-function createDropDown(itemId,ItemArr){
-    var bodyElement = document.getElementsByTagName('body');
+function createDropDown(itemId,ItemArr,table){
+    var tr = table.rows[0];
+    var td = document.createElement('td');
     var selectList = document.createElement('select');
     selectList.setAttribute("id",itemId);
     selectList.addEventListener('change', dropDownChanged);
@@ -92,15 +87,16 @@ function createDropDown(itemId,ItemArr){
         selectList.appendChild(selItem);
     }
 
-    bodyElement[0].appendChild(selectList);
+    td.appendChild(selectList);
+    tr.appendChild(td);
 
 }
 
 function dropDownChanged(e) {
-    var selectList = document.getElementById("projList");
+    var selectList = document.getElementById(PROJ_LIST_ID);
     let index = Number(e.target.value);
     let text = selectList.options[index].text
-    var table = document.getElementById("hogeTable");
+    var table = document.getElementsByTagName("table")[0];
     displayRowChange(table,text);
 }
 
@@ -109,10 +105,10 @@ function displayRowChange(table,selectProjName){
     // 今は総合計行も表示、非表示が切り替わる。
 
     // プロジェクト名のカラム位置取得
-    var projNameIndex = getTargetColIndex(table,"プロジェクト名");
+    var projNameIndex = getTargetColIndex(table,PROJ_COL_NAME);
 
     // テーブル要素のrowでループ
-    for(var i = 1;i < table.rows.length;i++){
+    for(var i = 2;i < table.rows.length;i++){
 
         // 選択されたプロジェクトの場合
         if(selectProjName === table.rows[i].cells[projNameIndex].innerHTML){
@@ -120,7 +116,7 @@ function displayRowChange(table,selectProjName){
             // 行を表示。
             table.rows[i].style.display = "table-row";
 
-        }else if(selectProjName === "選択してください。"){
+        }else if(selectProjName === SEL_LIST_DEFAULT_ITEM){
             // 行を表示。
             table.rows[i].style.display = "table-row";
         }else{
@@ -139,7 +135,7 @@ function addTotalRow(table,targetProjName,totalRowIndex){
     var totalWorkingHours = 0;
     var tr = document.createElement("tr");
     // tr.setAttribute("id","TotalRow" + i );
-    totalWorkingHours = getTotalWorkinghours(table,"作業時間",targetProjName,totalRowIndex);
+    totalWorkingHours = getTotalWorkinghours(table,WORKING_HOURS_COL_NAME,targetProjName,totalRowIndex);
     // 取得した合計時間を合計行に設定
     createTotalRow(tr,totalWorkingHours,targetProjName);
     table.appendChild(tr);
@@ -149,6 +145,7 @@ function addTotalRow(table,targetProjName,totalRowIndex){
 function createTotalRow(tr,totalWorkingHours,targetProjName){
 
     var td = document.createElement("td");
+    td.setAttribute("colspan","5");
     tr.appendChild(td);
 
     // 作業時間表示列
@@ -161,16 +158,13 @@ function createTotalRow(tr,totalWorkingHours,targetProjName){
     // プロジェクト名表示列
     var td3 = document.createElement("td");
     td3.innerHTML = targetProjName
-    // var label2 = document.createElement("label");
-    // label2.innerHTML = targetProjName;
-    // td3.appendChild(label2);
     tr.appendChild(td3);
 
     var td4 = document.createElement("td");
     tr.appendChild(td4);
+    var td5 = document.createElement("td");
+    tr.appendChild(td5);
 }
-
-
 
 // 合計時間取得　引数：テーブル、集計対象項目名、対象プロジェクト名
 function getTotalWorkinghours(table,sumTargetColName,targetProjName,totalRowIndex){
@@ -178,7 +172,7 @@ function getTotalWorkinghours(table,sumTargetColName,targetProjName,totalRowInde
     var sumTargetColIndex = 0;
     var sumTargetKeyIndex = 0;
     sumTargetColIndex = getTargetColIndex(table,sumTargetColName);
-    sumTargetKeyIndex = getTargetColIndex(table,"プロジェクト名");
+    sumTargetKeyIndex = getTargetColIndex(table,PROJ_COL_NAME);
 
     var tmpHours = 0;
     var tmpMinuets = 0;
@@ -188,7 +182,7 @@ function getTotalWorkinghours(table,sumTargetColName,targetProjName,totalRowInde
 
     var tmpFullSecond = 0;
 
-    for (var n=1; n < table.rows.length - totalRowIndex; n++) {
+    for (var n=2; n < table.rows.length - totalRowIndex; n++) {
 
         // 集計対象の行の場合
         if(table.rows[n].cells[sumTargetKeyIndex].innerHTML === targetProjName){
@@ -212,9 +206,8 @@ function getTotalWorkinghours(table,sumTargetColName,targetProjName,totalRowInde
 
 function timeFormat(arg){
     if(arg.length < 2){
-        if(0 <= Number(arg)){
-            arg = "0" + arg;
-        }
+        arg = "0" + arg;
+        
     }
     return arg;
 }
