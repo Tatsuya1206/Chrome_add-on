@@ -6,12 +6,14 @@ const WORKING_HOURS_COL_NAME = "実働";
 const SEL_LIST_DEFAULT_ITEM = "選択してください。";
 const PROJ_LIST_ID = "projList";
 
+//let で合計行の始まりと、終わりの行数取得
+
 window.onload = function(){
     // 対象テーブルを取得
     var myTable = document.getElementsByTagName('table')[0];
     // ドロップダウンリスト作成
     createProjDropDownList(myTable);
-
+    //ここで、合計行の始まりを取得
     //総合計行インデックス取得
     // var grandTotalRowIndex = myTable.rows.length;
 
@@ -20,6 +22,7 @@ window.onload = function(){
         // プロジェクト別合計行を追加
         addTotalRow(myTable,listItemArr[i],i);
     }
+    //ここで、合計行の最後の行数を取得
 }
 
 function createProjDropDownList(table){
